@@ -38,12 +38,13 @@ Holmes-VAU: Towards Long-term Video Anomaly Understanding at Any Granularity
 </div>
 
 
+
 ## :date: TODO
 - [x] Release the paper.
-- [] Release the HIVAU-70k benchmark.
-- [] Release the HolmesVAU model.
-- [] Release the inference code.
-- [] Release the training code.
+- [ ] Release the HIVAU-70k benchmark.
+- [ ] Release the HolmesVAU model.
+- [ ] Release the inference code.
+- [ ] Release the training code.
 
 
 ## :wrench: Benchmarks
