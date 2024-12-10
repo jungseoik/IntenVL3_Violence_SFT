@@ -1,5 +1,5 @@
 <div align="center">
-<h2 align="center"> <a href="https://arxiv.org/abs/xxx">
+<h2 align="center"> <a href="https://arxiv.org/abs/2412.06171">
 Holmes-VAU: Towards Long-term Video Anomaly Understanding at Any Granularity
 </a></h2>
 
