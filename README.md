@@ -90,7 +90,7 @@ Put all their training videos and test videos in the `[ucf-crime/xd-violence]/vi
 
 ~~~~
 
-3. Split the videos
+3. Split videos
 This process consumes several hours
 ```bash
 cd HIVAU-70k
