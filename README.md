@@ -81,11 +81,11 @@ Put all their training videos and test videos in the `[ucf-crime/xd-violence]/vi
             ├── events
             └── videos
                 ├── train
-                        ├── A.Beautiful.Mind.2001__#00-01-45_00-02-50_label_A.mp4
-                        ├── ...
-                    └── test
-                        ├── A.Beautiful.Mind.2001__#00-25-20_00-29-20_label_A.mp4
-                        ├── ...
+                    ├── A.Beautiful.Mind.2001__#00-01-45_00-02-50_label_A.mp4
+                    ├── ...
+                └── test
+                    ├── A.Beautiful.Mind.2001__#00-25-20_00-29-20_label_A.mp4
+                    ├── ...
 
 
 ~~~~
