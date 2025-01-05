@@ -98,4 +98,24 @@ python split_video.py
 python check_video.py
 ```
 
+## Citation
+
+If you find this repo useful for your research, please consider citing our papers:
+
+```bibtex
+@article{zhang2024holmesvau,
+  title={Holmes-vau: Towards long-term video anomaly understanding at any granularity},
+  author={Zhang, Huaxin and Xu, Xiaohao and Wang, Xiang and Zuo, Jialong and Huang, Xiaonan and Gao, Changxin and Zhang, Shanjun and Yu, Li and Sang, Nong},
+  journal={arXiv preprint arXiv:2412.06171},
+  year={2024}
+}
+
+@article{zhang2024holmesvad,
+  title={Holmes-VAD: Towards Unbiased and Explainable Video Anomaly Detection via Multi-modal LLM},
+  author={Zhang, Huaxin and Xu, Xiaohao and Wang, Xiang and Zuo, Jialong and Han, Chuchu and Huang, Xiaonan and Gao, Changxin and Wang, Yuehuan and Sang, Nong},
+  journal={arXiv preprint arXiv:2406.12235},
+  year={2024}
+}
+```
+---
 
