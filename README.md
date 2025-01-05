@@ -49,11 +49,13 @@ Holmes-VAU: Towards Long-term Video Anomaly Understanding at Any Granularity
 
 ## :wrench: Benchmarks
 1. Download videos
+
 Download the source videos for UCF-Crime and XD-Violence from the homepage below:
 - [UCF-Crime](https://www.crcv.ucf.edu/projects/real-world/)
 - [XD-Violence](https://roc-ng.github.io/XD-Violence/)
 
 2. Check the folder
+
 Put all their training videos and test videos in the `[ucf-crime/xd-violence]/videos/[train/test]` folder respectively. Please ensure the data structure is as below.
 ~~~~
 ├── HIVAU-70k
@@ -91,6 +93,7 @@ Put all their training videos and test videos in the `[ucf-crime/xd-violence]/vi
 ~~~~
 
 3. Split videos
+
 This process consumes several hours:
 ```bash
 cd HIVAU-70k
