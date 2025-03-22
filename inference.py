@@ -6,7 +6,7 @@ from holmesvau.holmesvau_utils import load_model, generate, show_smapled_video
 
 mllm_path = './ckpts/HolmesVAU-2B'
 sampler_path = './holmesvau/ATS/anomaly_scorer.pth'
-device = torch.device('cuda:1')
+device = torch.device('cuda:0')
 model, tokenizer, generation_config, sampler = load_model(mllm_path, sampler_path, device)
 
 video_path = "./examples/robbery.mp4"
