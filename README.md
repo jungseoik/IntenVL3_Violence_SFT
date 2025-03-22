@@ -37,14 +37,34 @@ Holmes-VAU: Towards Long-term Video Anomaly Understanding at Any Granularity
 </section>
 </div>
 
-
+## 📰 News
+* **[2025.03.22]** 🔥🔥🔥 Our inference/training code is available, and we release our model at [[HolmesVAU-2B]](https://huggingface.co/ppxin321/HolmesVAU-2B), have a try !
+* **[2025.02.27]** 🔥🔥🔥 Holmes-VAU is accpeted by CVPR2025 !
+* **[2025.01.05]** 👀 Our dataset **HIVAU-70k** is available now, welcome to **star** ⭐ this repository for the latest updates.
 
 ## :date: TODO
 - [x] Release the paper.
 - [x] Release the HIVAU-70k annotations.
-- [ ] Release the HolmesVAU model.
-- [ ] Release the inference code.
-- [ ] Release the training code.
+- [x] Release the HolmesVAU model.
+- [x] Release the inference code.
+- [x] Release the training code.
+
+## :speaking_head: Inference
+1. Prepare the Enviroment
+```bash
+conda create -n holmesvau python=3.9
+conda activate holmesvau
+pip install -r requirements.txt
+pip install flash-attn==2.3.6 --no-build-isolation # optional, for training chat models
+```
+
+2. Download [HolmesVAU-2B](https://huggingface.co/ppxin321/HolmesVAU-2B)
+
+3. Inference
+```bash
+python inference.py
+```
+We also provide a inference example with visualization in `inference.ipynb`.
 
 
 ## :wrench: Benchmarks
@@ -100,6 +120,39 @@ cd HIVAU-70k
 python split_video.py
 python check_video.py
 ```
+
+## :dart: Training
+1. Download the pre-trained model `InternVL2`
+
+```bash
+huggingface-cli download --resume-download --local-dir-use-symlinks False OpenGVLab/InternVL2-2B --local-dir InternVL2-2B
+```
+
+2. Fine-tuning
+
+Fine-tune the pre-trained models using the script for training the LoRA adapter, the parameters `GPUS` and `PER_DEVICE_BATCH_SIZE` depends on your available GPU resources. 
+```bash
+# Using 2 4090-ti GPUs, fine-tune the LoRA, cost about 23G per GPU
+cd internvl_chat
+CUDA_VISIBLE_DEVICES=0,1 GPUS=2 PER_DEVICE_BATCH_SIZE=2 sh shell/internvl2_2b_finetune_lora.sh
+```
+```bash
+# Using 2 A100 GPUs, fine-tune the LoRA, cost about 30G per GPU
+cd internvl_chat
+CUDA_VISIBLE_DEVICES=0,1 GPUS=2 PER_DEVICE_BATCH_SIZE=4 sh shell/internvl2_2b_finetune_lora.sh
+```
+
+Use the provided script to merge the LoRA weights into the base model. The script takes two arguments: the input path of the fine-tuned model and the output path for the merged model.
+
+```bash
+python tools/merge_lora.py <input_path> <output_path>
+```
+After merging the LoRA weights, you can wrap the fine-tuned model into an AutoModel for easier inference or deployment.
+```bash
+cp pretrained/InternVL2-2B/*.py <output_path>
+```
+
+**Acknowledgement**: We used InternVL as our base model, more details about the training can be found [here](https://internvl.readthedocs.io/en/latest).
 
 ## Citation
 
