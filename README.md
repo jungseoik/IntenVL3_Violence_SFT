@@ -7,6 +7,11 @@ Holmes-VAU: Towards Long-term Video Anomaly Understanding at Any Granularity
 
 </div>
 
+## 📰 News
+* **[2025.03.22]** 🔥🔥🔥 Our inference/training code is available, and we release our model at [[HolmesVAU-2B]](https://huggingface.co/ppxin321/HolmesVAU-2B), have a try !
+* **[2025.02.27]** 🔥🔥🔥 Holmes-VAU is accpeted by CVPR2025 !
+* **[2025.01.05]** 👀 Our dataset **HIVAU-70k** is available now, welcome to **star** ⭐ this repository for the latest updates.
+
 ##  :sparkles:Highlights
 > **Abstract:** How can we enable models to comprehend video anomalies occurring over varying temporal scales and contexts? Traditional Video Anomaly Understanding (VAU) methods focus on frame-level anomaly prediction, often missing the interpretability of complex and diverse real-world anomalies. Recent multimodal approaches leverage visual and textual data but lack hierarchical annotations that capture both short-term and long-term anomalies.
 <section class="hero teaser">
@@ -37,10 +42,6 @@ Holmes-VAU: Towards Long-term Video Anomaly Understanding at Any Granularity
 </section>
 </div>
 
-## 📰 News
-* **[2025.03.22]** 🔥🔥🔥 Our inference/training code is available, and we release our model at [[HolmesVAU-2B]](https://huggingface.co/ppxin321/HolmesVAU-2B), have a try !
-* **[2025.02.27]** 🔥🔥🔥 Holmes-VAU is accpeted by CVPR2025 !
-* **[2025.01.05]** 👀 Our dataset **HIVAU-70k** is available now, welcome to **star** ⭐ this repository for the latest updates.
 
 ## :date: TODO
 - [x] Release the paper.
