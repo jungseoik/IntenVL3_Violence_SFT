@@ -66,7 +66,7 @@ pip install flash-attn==2.3.6 --no-build-isolation # optional, for training chat
 # less than 9GB memory on 1 GPU is reuqired
 python inference.py
 ```
-We also provide a inference example with visualization in `inference.ipynb`.
+We also provide an inference example with visualization in `inference.ipynb`.
 
 
 ## :wrench: Benchmarks
