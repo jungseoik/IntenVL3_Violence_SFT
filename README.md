@@ -1,179 +1,101 @@
-<div align="center">
-<h2 align="center"> <a href="https://arxiv.org/abs/2412.06171">
-Holmes-VAU: Towards Long-term Video Anomaly Understanding at Any Granularity
-</a></h2>
 
-<h5 align="center"> If you like our project, please give us a star ⭐ on GitHub for latest update.  </h2>
+# 📊 InternVL3 Violence Classification Evaluator
 
-</div>
+이 프로젝트는 비디오 기반 폭력 분류 모델을 평가하고, 결과 리포트를 생성하는 실험용 파이프라인입니다.
 
-## 📰 News
-* **[2025.03.22]** 🔥🔥🔥 Our inference/training code is available, and we release our model at [[HolmesVAU-2B]](https://huggingface.co/ppxin321/HolmesVAU-2B), have a try !
-* **[2025.02.27]** 🔥🔥🔥 Holmes-VAU is accpeted by CVPR2025 !
-* **[2025.01.05]** 👀 Our dataset **HIVAU-70k** is available now, welcome to **star** ⭐ this repository for the latest updates.
+---
 
-##  :sparkles:Highlights
-> **Abstract:** How can we enable models to comprehend video anomalies occurring over varying temporal scales and contexts? Traditional Video Anomaly Understanding (VAU) methods focus on frame-level anomaly prediction, often missing the interpretability of complex and diverse real-world anomalies. Recent multimodal approaches leverage visual and textual data but lack hierarchical annotations that capture both short-term and long-term anomalies.
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <img src="assets/teaser.png" alt="MY ALT TEXT"/>
-    </div>
-  </div>
-</section>
+## 📁 프로젝트 구조 요약
 
-> To address this challenge, we introduce HIVAU-70k, a large-scale benchmark for hierarchical video anomaly understanding across any granularity. We develop a semi-automated annotation engine that efficiently scales high-quality annotations by combining manual video segmentation with recursive free-text annotation using large language models (LLMs). This results in over 70,000 multi-granular annotations organized at clip-level, event-level, and video-level segments.
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <img src="assets/data_stastic.png" alt="MY ALT TEXT"/>
-    </div>
-  </div>
-</section>
+```plaintext
+├── evaluator/
+│   └── eval_cls_vid.py           # 결과 CSV로부터 리포트 생성
+├── extractor/
+│   └── ucf_video.py              # 모델 평가 로직 (eval 함수 포함)
+├── assets/
+│   └── config.py                 # 설정값들 (모델 리스트, 템플릿 등)
+├── results.csv                   # 평가 결과 CSV 파일 (자동 생성됨)
+└── run.py                        # 이 스크립트를 실행하세요
+```
 
-> For efficient anomaly detection in long videos, we propose the Anomaly-focused Temporal Sampler (ATS). ATS integrates an anomaly scorer with a density-aware sampler to adaptively select frames based on anomaly scores, ensuring that the multimodal LLM concentrates on anomaly-rich regions, which significantly enhances both efficiency and accuracy. Extensive experiments demonstrate that our hierarchical instruction data markedly improves anomaly comprehension. The integrated ATS and visual-language model outperform traditional methods in processing long videos.
-<div align="center">
-<section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <img src="assets/framework.png" alt="MY ALT TEXT" style="width: 60%;"/>
-    </div>
-  </div>
-</section>
-</div>
+---
 
+## ⚙️ 설치 및 환경 구성
 
-## :date: TODO
-- [x] Release the paper.
-- [x] Release the HIVAU-70k annotations.
-- [x] Release the HolmesVAU model.
-- [x] Release the inference code.
-- [x] Release the training code.
+Python ≥ 3.8 권장
 
-## :speaking_head: Inference
-1. Prepare the Enviroment
 ```bash
-conda create -n holmesvau python=3.9
-conda activate holmesvau
+conda create -n violence_eval python=3.9 -y
+conda activate violence_eval
 pip install -r requirements.txt
-pip install flash-attn==2.3.6 --no-build-isolation # optional, for training chat models
+
 ```
 
-2. Download [HolmesVAU-2B](https://huggingface.co/ppxin321/HolmesVAU-2B)
+---
 
-3. Inference
-```bash
-# less than 9GB memory on 1 GPU is reuqired
-python inference.py
-```
-We also provide an inference example with visualization in `inference.ipynb`.
+## 🚀 실행 방법
 
+### 🔹 1. 평가 수행
 
-## :wrench: Benchmarks
-1. Download videos
-
-Download the source videos for UCF-Crime and XD-Violence from the homepage below:
-- [UCF-Crime](https://www.crcv.ucf.edu/projects/real-world/)
-- [XD-Violence](https://roc-ng.github.io/XD-Violence/)
-
-2. Check the folder
-
-Put all their training videos and test videos in the `[ucf-crime/xd-violence]/videos/[train/test]` folder respectively. Please ensure the data structure is as below.
-~~~~
-├── HIVAU-70k
-    ├── instruction
-        ├── merge_instruction_test_final.jsonl
-        └── merge_instruction_train_final.jsonl
-    ├── raw_annotations
-        ├── ucf_database_train.json
-        ├── ucf_database_test.json
-        ├── xd_database_train.json
-        └── xd_database_test.json
-    └── videos
-        ├── ucf-crime
-            ├── clips
-            ├── events
-            └── videos
-                ├── train
-                    ├── Abuse001_x264.mp4
-                    ├── ...
-                └── test
-                    ├── Abuse028_x264.mp4
-                    ├── ...
-        └── xd-violence
-            ├── clips
-            ├── events
-            └── videos
-                ├── train
-                    ├── A.Beautiful.Mind.2001__#00-01-45_00-02-50_label_A.mp4
-                    ├── ...
-                └── test
-                    ├── A.Beautiful.Mind.2001__#00-25-20_00-29-20_label_A.mp4
-                    ├── ...
-
-
-~~~~
-
-3. Split videos
-
-This process consumes several hours:
-```bash
-cd HIVAU-70k
-python split_video.py
-python check_video.py
-```
-
-## :dart: Training
-1. Download the pre-trained model `InternVL2`
+모델, 템플릿, 세그먼트 수 조합별로 비디오 분류 평가를 수행합니다.
 
 ```bash
-huggingface-cli download --resume-download --local-dir-use-symlinks False OpenGVLab/InternVL2-2B --local-dir InternVL2-2B
+python run.py --mode eval
 ```
 
-2. Fine-tuning
+> 결과는 `results.csv`로 저장됩니다 (경로는 `assets/config.py`의 `OUTPUT_CSV` 참고).
 
-Fine-tune the pre-trained models using the script for training the LoRA adapter, the parameters `GPUS` and `PER_DEVICE_BATCH_SIZE` depends on your available GPU resources. 
-```bash
-# Using 2 4090-ti GPUs, fine-tune the LoRA, cost about 23G per GPU
-cd internvl_chat
-CUDA_VISIBLE_DEVICES=0,1 GPUS=2 PER_DEVICE_BATCH_SIZE=2 sh shell/internvl2_2b_finetune_lora.sh
-```
-```bash
-# Using 2 A100 GPUs, fine-tune the LoRA, cost about 30G per GPU
-cd internvl_chat
-CUDA_VISIBLE_DEVICES=0,1 GPUS=2 PER_DEVICE_BATCH_SIZE=4 sh shell/internvl2_2b_finetune_lora.sh
-```
+---
 
-Use the provided script to merge the LoRA weights into the base model. The script takes two arguments: the input path of the fine-tuned model and the output path for the merged model.
+### 🔹 2. 리포트 생성
+
+평가 결과 CSV를 기반으로 정리된 리포트를 생성합니다.
 
 ```bash
-python tools/merge_lora.py <input_path> <output_path>
+python run.py --mode report --csv results.csv
 ```
-After merging the LoRA weights, you can wrap the fine-tuned model into an AutoModel for easier inference or deployment.
+
+> `--csv` 경로는 생략 시 기본값 `"results.csv"`가 사용됩니다.
+
+---
+
+## 🧩 구성 요소 설명
+
+* `eval()`: 모든 모델/템플릿/세그먼트 조합에 대해 비디오 분류를 실행합니다.
+* `generate_comprehensive_report(csv_path)`: 평가 결과 CSV를 분석하여 종합적인 리포트를 생성합니다.
+* `InternVL3Inferencer`: 실제 모델 추론 로직을 담당합니다.
+
+---
+
+## 📝 설정 변경
+
+`assets/config.py`를 열어 아래 항목을 수정할 수 있습니다:
+
+* `VIDEO_FOLDER`: 평가할 비디오 폴더 경로
+* `VIDEO_CATEGORIES_FILE`: ground-truth 레이블 JSON
+* `MODEL_LIST`, `TEMPLATES`, `NUM_SEGMENTS_LIST`: 평가할 조건 조합
+* `MAX_WORKERS`: 병렬 처리 개수
+
+---
+
+## 예시
+
 ```bash
-cp pretrained/InternVL2-2B/*.py <output_path>
+# 모든 실험 조합에 대해 평가 수행
+python run.py --mode eval
+
+# 결과 분석 리포트 생성
+python run.py --mode report --csv results.csv
 ```
 
-**Acknowledgement**: We used InternVL as our base model, more details about the training can be found [here](https://internvl.readthedocs.io/en/latest).
+---
 
-## Citation
+## 결과 예시 (CSV 포맷)
 
-If you find this repo useful for your research, please consider citing our papers:
+| video\_name | ground\_truth | model\_name | template\_type | predicted\_category | num\_segment |
+| ----------- | ------------- | ----------- | -------------- | ------------------- | ------------ |
+| fight1.mp4  | Violence      | internvl-v1 | typeA          | Violence            | 8            |
+| normal1.mp4 | NonViolence   | internvl-v2 | typeB          | NonViolence         | 16           |
 
-```bibtex
-@article{zhang2024holmesvau,
-  title={Holmes-vau: Towards long-term video anomaly understanding at any granularity},
-  author={Zhang, Huaxin and Xu, Xiaohao and Wang, Xiang and Zuo, Jialong and Huang, Xiaonan and Gao, Changxin and Zhang, Shanjun and Yu, Li and Sang, Nong},
-  journal={arXiv preprint arXiv:2412.06171},
-  year={2024}
-}
-
-@article{zhang2024holmesvad,
-  title={Holmes-VAD: Towards Unbiased and Explainable Video Anomaly Detection via Multi-modal LLM},
-  author={Zhang, Huaxin and Xu, Xiaohao and Wang, Xiang and Zuo, Jialong and Han, Chuchu and Huang, Xiaonan and Gao, Changxin and Wang, Yuehuan and Sang, Nong},
-  journal={arXiv preprint arXiv:2406.12235},
-  year={2024}
-}
-```
 ---
 
