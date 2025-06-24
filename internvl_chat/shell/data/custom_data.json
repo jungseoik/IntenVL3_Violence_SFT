@@ -1,0 +1,9 @@
+{
+    "HIVAU_72k": {
+      "root": "/home/piawsa6000/work/seoik/HolmesVAU/HIVAU-70k/videos",
+      "annotation": "/home/piawsa6000/work/seoik/HolmesVAU/HIVAU-70k/instruction/output_with_total.jsonl",
+      "data_augment": false,
+      "repeat_time": 1,
+      "length": 25056
+    }
+}
