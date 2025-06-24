@@ -13,5 +13,3 @@ video_path = "./examples/robbery.mp4"
 prompt = "Could you specify the anomaly events present in the video?"
 pred, history, frame_indices, anomaly_score = generate(video_path, prompt, model, tokenizer, generation_config, sampler, select_frames=12, use_ATS=True)
 print('\nUser:', prompt, '\nHolmesVAU:', pred)
-
-

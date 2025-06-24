@@ -432,7 +432,19 @@ class LazySupervisedDataset(Dataset):
         # Get the video file path
         video_file = data_item['video']
         video_path = os.path.join(self.root, video_file)
-
+        # === 디버그 코드 추가 ===
+        print(f"DEBUG: self.root = {self.root}")
+        print(f"DEBUG: video_file = {video_file}")
+        print(f"DEBUG: video_path = {video_path}")
+        print(f"DEBUG: File exists: {os.path.exists(video_path)}")
+        
+        if not os.path.exists(video_path):
+            print(f"DEBUG: Directory of video_path: {os.path.dirname(video_path)}")
+            print(f"DEBUG: Directory exists: {os.path.exists(os.path.dirname(video_path))}")
+            if os.path.exists(os.path.dirname(video_path)):
+                print(f"DEBUG: Directory contents (first 5): {sorted(os.listdir(os.path.dirname(video_path)))[:5]}")
+        print("DEBUG: ---")
+        # === 디버그 코드 끝 ===
         # Load the video frames using tcs_loader
         # TODO: Load videos without using tcsloader.
         # image_list = self.tcs_loader(
