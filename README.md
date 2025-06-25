@@ -1,101 +1,143 @@
+# InternVL3 HIVAU-70k Fine-tuning & Debugging & eval Guide
 
-# 📊 InternVL3 Violence Classification Evaluator
+## ⚙️ 환경 설정 (Prepare the Environment)
 
-이 프로젝트는 비디오 기반 폭력 분류 모델을 평가하고, 결과 리포트를 생성하는 실험용 파이프라인입니다.
-
----
-
-## 📁 프로젝트 구조 요약
-
-```plaintext
-├── evaluator/
-│   └── eval_cls_vid.py           # 결과 CSV로부터 리포트 생성
-├── extractor/
-│   └── ucf_video.py              # 모델 평가 로직 (eval 함수 포함)
-├── assets/
-│   └── config.py                 # 설정값들 (모델 리스트, 템플릿 등)
-├── results.csv                   # 평가 결과 CSV 파일 (자동 생성됨)
-└── run.py                        # 이 스크립트를 실행하세요
-```
-
----
-
-## ⚙️ 설치 및 환경 구성
-
-Python ≥ 3.8 권장
+InternVL 모델을 로컬에서 실행하거나 디버깅하기 위해 먼저 Python 환경을 구성합니다.
 
 ```bash
-conda create -n violence_eval python=3.9 -y
-conda activate violence_eval
+conda create -n vl3 python=3.9
+conda activate vl3
+
 pip install -r requirements.txt
 
+# option: Chat 모델 학습에 최적화된 FlashAttention 설치
+pip install flash-attn==2.3.6 --no-build-isolation
 ```
 
----
 
-## 🚀 실행 방법
+## 📂 데이터셋 구성 안내
 
-### 🔹 1. 평가 수행
+본 프로젝트는 아래와 같은 폴더 구조가 이미 존재한다는 가정하에 작성되었습니다. 
+실험을 위해서는 동일한 디렉토리 구조로 데이터셋을 구성해야 합니다:
 
-모델, 템플릿, 세그먼트 수 조합별로 비디오 분류 평가를 수행합니다.
+```
+assets/
+internvl_chat/
+...
+HIVAU-70k/
+├── instruction/
+├── raw_annotations/
+└── videos/
+    ├── ucf-crime/
+    │   ├── clips/
+    │   │   ├── test/
+    │   │   └── train/
+    │   ├── events/
+    │   │   ├── test/
+    │   │   └── train/
+    │   └── videos/
+    │       └── train/
+    └── xd-violence/
+        ├── clips/
+        │   ├── test/
+        │   └── train/
+        ├── events/
+        │   ├── test/
+        │   └── train/
+        └── videos/
+            ├── test/
+            └── train/
+
+```
+
+> ⚠️ 위와 같은 구조가 맞지 않으면 학습 및 평가 코드가 정상 동작하지 않을 수 있습니다.
+
+해당 데이터셋은 아래 GitHub 저장소에서 확인 및 다운로드할 수 있습니다:
+🔗 [https://github.com/jungseoik/HIVAU-70k](https://github.com/jungseoik/HIVAU-70k)
+구축 시 전체 압축을 풀고 반드시 위 폴더 구조에 맞게 정리해 주세요.
+
+
+## InternVL3-2B 모델 다운로드 (프로젝트 ckpts 폴더에 저장)
+
+이 프로젝트는 Hugging Face에서 공개된 [OpenGVLab/InternVL3-2B](https://huggingface.co/OpenGVLab/InternVL3-2B) 모델을 사용합니다. 
+아래 명령어를 통해 사전에 모델을 다운로드해두어야 파인튜닝이 가능합니다.
+
+### 다운로드 방법
 
 ```bash
-python run.py --mode eval
+# 1. ckpts 디렉토리 생성
+mkdir -p ckpts
+
+# 2. InternVL3-2B 모델 다운로드
+huggingface-cli download \
+  --resume-download \
+  --local-dir-use-symlinks False \
+  OpenGVLab/InternVL3-2B \
+  --local-dir ckpts/InternVL3-2B
 ```
 
-> 결과는 `results.csv`로 저장됩니다 (경로는 `assets/config.py`의 `OUTPUT_CSV` 참고).
+> ⚠️ 위 명령을 실행하려면 먼저 `huggingface-cli login` 명령어로 Hugging Face 계정에 로그인되어 있어야 합니다.
 
 ---
 
-### 🔹 2. 리포트 생성
+### 📁 다운로드 후 디렉토리 구조 예시
 
-평가 결과 CSV를 기반으로 정리된 리포트를 생성합니다.
+```plaintext
+ckpts/
+└── InternVL3-2B/
+    ├── config.json
+    ├── pytorch_model.bin
+    ├── tokenizer_config.json
+    ├── generation_config.json
+    └── ... 
+```
+
+
+
+## 🚀 실행 방식 선택
+
+InternVL 파인튜닝은 다음 두 가지 방식 중 하나로 실행할 수 있습니다:
+
+---
+
+### 1. 쉘 스크립트를 통한 대규모 학습 실행
 
 ```bash
-python run.py --mode report --csv results.csv
+# 8개의 GPU를 사용하여 전체 LLM 파인튜닝 (GPU당 약 30GB 메모리 사용)
+cd internvl_chat
+GPUS=2 PER_DEVICE_BATCH_SIZE=1 sh shell/internvl3.0/2nd_finetune/internvl3_2b_finetune_lora_custom.sh
 ```
 
-> `--csv` 경로는 생략 시 기본값 `"results.csv"`가 사용됩니다.
+### 2. VSCode 디버깅 환경에서 실행
+
+위 항목들을 수정하여 VSCode의 `launch.json`으로 디버깅 실행하면,
+- 특정 파라미터 실험이나 오류 추적이 쉽습니다.(다만 적합한 실행방식은 아닙니다. 흐름을 알고 싶다면 체크하는건 추천합니다)
+
+> 아래 방법은 개발/디버깅 단계에 적합합니다.
+
+#### 🛠 디버깅을 따로 하고 싶다면 본인 환경에서 수정해야 할 항목들
+
+InternVL 파인튜닝을 다른 환경에서 디버깅하려면 'assets/launch.json" 내용에 해당하는 아래 항목들을 **자신의 시스템에 맞게 수정**해야 합니다.
+
+#### 🔧 필수 수정 대상 (환경 종속성 있음)
+
+| 구분         | 항목                    | 설명                              | 예시 경로 또는 값 |
+|--------------|-------------------------|-----------------------------------|-------------------|
+| 📁 경로 관련 | `"program"`             | 학습 스크립트 경로                | `internvl_chat/internvl/train/internvl_chat_finetune.py` |
+|              | `--model_name_or_path`  | 사전 학습 모델 경로 (로컬)        | `/home/USER/.../ckpts/InternVL3-2B` |
+|              | `--output_dir`          | 학습 결과 저장 경로               | `/home/USER/.../ckpts/output_lora` |
+|              | `--meta_path`           | 학습용 데이터 JSON 경로           | `/home/USER/.../data/custom_data.json` |
+|              | `--deepspeed`           | Deepspeed 설정 파일 경로          | `${workspaceFolder}/internvl_chat/zero_stage1_config.json` |
+|              | `PYTHONPATH`            | 내부 모듈 import를 위한 경로 설정 | `${workspaceFolder}/internvl_chat` |
 
 ---
 
-## 🧩 구성 요소 설명
-
-* `eval()`: 모든 모델/템플릿/세그먼트 조합에 대해 비디오 분류를 실행합니다.
-* `generate_comprehensive_report(csv_path)`: 평가 결과 CSV를 분석하여 종합적인 리포트를 생성합니다.
-* `InternVL3Inferencer`: 실제 모델 추론 로직을 담당합니다.
-
----
-
-## 📝 설정 변경
-
-`assets/config.py`를 열어 아래 항목을 수정할 수 있습니다:
-
-* `VIDEO_FOLDER`: 평가할 비디오 폴더 경로
-* `VIDEO_CATEGORIES_FILE`: ground-truth 레이블 JSON
-* `MODEL_LIST`, `TEMPLATES`, `NUM_SEGMENTS_LIST`: 평가할 조건 조합
-* `MAX_WORKERS`: 병렬 처리 개수
+| 구분         | 항목              | 설명                                 | 예시 경로 또는 값 |
+|--------------|-------------------|--------------------------------------|-------------------|
+| ⚙️ CUDA 설정 | `CUDA_HOME`       | 설치된 CUDA 경로                     | `/usr/local/cuda-12.3` |
+|              | `PATH`            | CUDA 실행 파일이 포함된 경로 추가    | `/usr/local/cuda-12.3/bin:${env:PATH}` |
+|              | `LD_LIBRARY_PATH` | CUDA 라이브러리 경로 추가            | `/usr/local/cuda-12.3/lib64:${env:LD_LIBRARY_PATH}` |
 
 ---
 
-## 예시
-
-```bash
-# 모든 실험 조합에 대해 평가 수행
-python run.py --mode eval
-
-# 결과 분석 리포트 생성
-python run.py --mode report --csv results.csv
-```
-
----
-
-## 결과 예시 (CSV 포맷)
-
-| video\_name | ground\_truth | model\_name | template\_type | predicted\_category | num\_segment |
-| ----------- | ------------- | ----------- | -------------- | ------------------- | ------------ |
-| fight1.mp4  | Violence      | internvl-v1 | typeA          | Violence            | 8            |
-| normal1.mp4 | NonViolence   | internvl-v2 | typeB          | NonViolence         | 16           |
-
----
 
