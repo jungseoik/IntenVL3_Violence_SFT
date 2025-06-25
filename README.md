@@ -2,7 +2,7 @@
 
 ## ⚙️ 환경 설정 (Prepare the Environment)
 
-InternVL 모델을 로컬에서 실행하거나 디버깅하기 위해 먼저 Python 환경을 구성합니다.
+InternVL 모델을 로컬에서 실행하거나 디버깅하기 위해 먼저 Python 환경을 구성.
 
 ```bash
 conda create -n vl3 python=3.9
@@ -17,8 +17,8 @@ pip install flash-attn==2.3.6 --no-build-isolation
 
 ## 📂 데이터셋 구성 안내
 
-본 프로젝트는 아래와 같은 폴더 구조가 이미 존재한다는 가정하에 작성되었습니다. 
-실험을 위해서는 동일한 디렉토리 구조로 데이터셋을 구성해야 합니다:
+본 프로젝트는 아래와 같은 폴더 구조가 이미 존재한다는 가정하에 작성. 
+실험을 위해서는 동일한 디렉토리 구조로 데이터셋을 구성:
 
 ```
 assets/
@@ -52,7 +52,7 @@ HIVAU-70k/
 
 > ⚠️ 위와 같은 구조가 맞지 않으면 학습 및 평가 코드가 정상 동작하지 않을 수 있습니다.
 
-해당 데이터셋은 아래 GitHub 저장소에서 확인 및 다운로드할 수 있습니다:
+해당 데이터셋은 아래 GitHub 저장소에서 확인 및 다운로드:
 🔗 [https://github.com/jungseoik/HIVAU-70k](https://github.com/jungseoik/HIVAU-70k)
 구축 시 전체 압축을 풀고 반드시 위 폴더 구조에 맞게 정리해 주세요.
 
@@ -69,6 +69,8 @@ HIVAU-70k/
 mkdir -p ckpts
 
 # 2. InternVL3-2B 모델 다운로드
+pip install -U "huggingface_hub[cli]"
+
 huggingface-cli download \
   --resume-download \
   --local-dir-use-symlinks False \
@@ -103,9 +105,17 @@ InternVL 파인튜닝은 다음 두 가지 방식 중 하나로 실행할 수 �
 ### 1. 쉘 스크립트를 통한 대규모 학습 실행
 
 ```bash
-# 8개의 GPU를 사용하여 전체 LLM 파인튜닝 (GPU당 약 30GB 메모리 사용)
+# 2개의 GPU를 사용하여 전체 LLM 파인튜닝 (GPU당 약 30GB 메모리 사용)
 cd internvl_chat
 GPUS=2 PER_DEVICE_BATCH_SIZE=1 sh shell/internvl3.0/2nd_finetune/internvl3_2b_finetune_lora_custom.sh
+
+## Cuda, CuDNN 환경변수가 다를 수 있습니다. 꼭 체크하시기 바랍니다.
+## LD_LIBRARY_PATH=""
+## 이렇게 하면 sh 스크립트가 실행되는 순간에는 LD_LIBRARY_PATH가 비어있게 되므로, PyTorch가 올바른 cuDNN 라이브러리를 찾아 사용
+LD_LIBRARY_PATH="" GPUS=3 PER_DEVICE_BATCH_SIZE=1 sh shell/internvl3.0/2nd_finetune/internvl3_2b_finetune_lora_custom.sh
+
+## 다음과 같이 gpu 번호를 지정 가능합니다.
+GPUS=3 CUDA_VISIBLE_DEVICES=1,2,3 PER_DEVICE_BATCH_SIZE=1 sh shell/internvl3.0/2nd_finetune/internvl3_2b_finetune_lora_custom.sh
 ```
 
 ### 2. VSCode 디버깅 환경에서 실행
@@ -130,6 +140,14 @@ InternVL 파인튜닝을 다른 환경에서 디버깅하려면 'assets/launch.j
 |              | `--deepspeed`           | Deepspeed 설정 파일 경로          | `${workspaceFolder}/internvl_chat/zero_stage1_config.json` |
 |              | `PYTHONPATH`            | 내부 모듈 import를 위한 경로 설정 | `${workspaceFolder}/internvl_chat` |
 
+
+
+#### CUDA 경로 확인 및 디버깅 설정 수정 가이드
+
+- 학습/디버깅을 위해 CUDA 경로가 올바르게 설정되어 있어야 합니다. 
+- 아래 절차에 따라 CUDA 버전을 확인하고, VSCode 실행 설정을 변경하세요.
+- launch.json에 명시된 CUDA_HOME, PATH, LD_LIBRARY_PATH를 모두 제거하는것도 방법입니다.
+- 경로 문제로 인해 디버깅이 안되는 경우가 대부분이니 꼭 체크하시기 바랍니다.
 ---
 
 | 구분         | 항목              | 설명                                 | 예시 경로 또는 값 |
@@ -139,5 +157,57 @@ InternVL 파인튜닝을 다른 환경에서 디버깅하려면 'assets/launch.j
 |              | `LD_LIBRARY_PATH` | CUDA 라이브러리 경로 추가            | `/usr/local/cuda-12.3/lib64:${env:LD_LIBRARY_PATH}` |
 
 ---
+
+### 1. 시스템에 설치된 CUDA 버전 확인
+
+```bash
+ls /usr/local | grep cuda
+```
+
+예시 출력:
+
+```
+cuda
+cuda-12.1
+```
+
+```bash
+which nvcc
+```
+
+예시 출력:
+
+```
+/usr/local/cuda-12.1/bin/nvcc
+```
+
+위 결과로부터 현재 사용 중인 CUDA 버전은 `12.1`임을 확인할 수 있습니다.
+
+---
+
+### 2. `.vscode/launch.json` 내 CUDA 관련 환경 변수 수정
+
+#### 기본 세팅:
+
+```json
+"env": {
+  "CUDA_HOME": "/usr/local/cuda-12.3",
+  "PATH": "/usr/local/cuda-12.3/bin:${env:PATH}",
+  "LD_LIBRARY_PATH": "/usr/local/cuda-12.3/lib64:${env:LD_LIBRARY_PATH}"
+}
+```
+
+#### 수정(내 쿠다환경 CUDA 12.1에 맞게):
+
+```json
+"env": {
+  "CUDA_HOME": "/usr/local/cuda-12.1",
+  "PATH": "/usr/local/cuda-12.1/bin:${env:PATH}",
+  "LD_LIBRARY_PATH": "/usr/local/cuda-12.1/lib64:${env:LD_LIBRARY_PATH}"
+}
+```
+---
+
+
 
 
