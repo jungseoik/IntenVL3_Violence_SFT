@@ -1,7 +1,7 @@
 {
     "HIVAU_72k": {
-      "root": "/home/piawsa6000/work/seoik/HolmesVAU/IntenVL3_Violence_SFT/HIVAU-70k/videos",
-      "annotation": "/home/piawsa6000/work/seoik/HolmesVAU/IntenVL3_Violence_SFT/HIVAU-70k/instruction/output_with_total.jsonl",
+      "root": "/home/7TBSSD/interns/nas_192/sangrak/HIVAU-70k/src/videos",
+      "annotation": "/home/7TBSSD/interns/sangrak/IntenVL3_Violence_SFT/HIVAU-70k/instruction/output_with_total.jsonl",
       "data_augment": false,
       "repeat_time": 1,
       "length": 25056
